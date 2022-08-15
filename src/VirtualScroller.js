@@ -1,13 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
+import RowTemplate from "./RowTemplate";
 
 function VirtualScroller({ settings, get, row, InitialState }) {
   const [state, setState] = useState({ ...InitialState });
+  const [selectedItems, setSelecteditems] = useState([]);
   const viewportElement = useRef(null);
 
   useEffect(() => {
     viewportElement.current.scrollTop = state.initialPosition;
     if (!state.initialPosition) {
-      console.log("from useEffect");
       runScroller({ target: { scrollTop: 0 } });
     }
   }, []);
@@ -23,15 +24,6 @@ function VirtualScroller({ settings, get, row, InitialState }) {
       SETTINGS: { itemHeight, minIndex },
     } = state;
 
-    console.log(
-      "previous",
-      scrollTop,
-      state.data,
-      state.topPaddingHeight,
-      state.bottomPaddingHeight,
-      bufferedItems
-    );
-
     const index =
       minIndex + Math.floor((scrollTop - toleranceHeight) / itemHeight);
     const data = get(index, bufferedItems);
@@ -40,8 +32,6 @@ function VirtualScroller({ settings, get, row, InitialState }) {
       totalHeight - topPaddingHeight - data.length * itemHeight,
       0
     );
-
-    console.log("after", data, topPaddingHeight, bottomPaddingHeight);
 
     setState({
       ...state,
@@ -56,13 +46,22 @@ function VirtualScroller({ settings, get, row, InitialState }) {
       className="viewport"
       style={{ height: `${state.viewportHeight}px`, overflowY: "auto" }}
       ref={viewportElement}
-      onScroll={runScroller}
+      onScroll={(e) => {
+        runScroller(e);
+      }}
     >
       <div
         style={{ height: `${state.topPaddingHeight}px`, background: "red" }}
       ></div>
+
       {state.data.map((item) => {
-        return row(item);
+        return (
+          <RowTemplate
+            item={item}
+            setSelecteditems={setSelecteditems}
+            selectedItems={selectedItems}
+          ></RowTemplate>
+        );
       })}
       <div
         style={{ height: `${state.bottomPaddingHeight}px`, background: "blue" }}

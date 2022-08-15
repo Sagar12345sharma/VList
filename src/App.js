@@ -45,9 +45,9 @@ function App() {
   };
   const SETTINGS = {
     minIndex: 1,
-    maxIndex: 16,
+    maxIndex: 160,
     startIndex: 1,
-    itemHeight: 120,
+    itemHeight: 100,
     amount: 5,
     tolerance: 2,
   };
@@ -59,18 +59,10 @@ function App() {
     const end = Math.min(offset + limit - 1, SETTINGS.maxIndex);
     if (start <= end) {
       for (let i = start; i <= end; i++) {
-        data.push({ index: i, text: `item ${i}` });
+        data.push({ index: i, text: `item ${i}`, height: SETTINGS.itemHeight });
       }
     }
     return data;
-  };
-
-  const rowTemplate = (item) => {
-    return (
-      <div className="item" key={item.index} style={{ height: "120px" }}>
-        {item.text}
-      </div>
-    );
   };
 
   useEffect(() => {
@@ -80,12 +72,7 @@ function App() {
 
   return (
     <div className="App">
-      <VirtualScroller
-        settings={SETTINGS}
-        get={getData}
-        row={rowTemplate}
-        InitialState={state}
-      />
+      <VirtualScroller settings={SETTINGS} get={getData} InitialState={state} />
     </div>
   );
 }
