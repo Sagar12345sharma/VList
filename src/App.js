@@ -3,6 +3,9 @@ import "./App.css";
 import VirtualScroller from "./VirtualScroller";
 
 function App() {
+  const [incrementer, setIncrementer] = useState(1);
+
+  const getRequestCallOptimizationMap = new Map();
   const setInitialState = ({
     minIndex,
     maxIndex,
@@ -43,25 +46,35 @@ function App() {
       data: [],
     };
   };
+
   const SETTINGS = {
     minIndex: 1,
-    maxIndex: 160,
+    maxIndex: 50,
     startIndex: 1,
     itemHeight: 100,
-    amount: 5,
-    tolerance: 2,
+    amount: 8,
+    tolerance: 6,
   };
+
   const [state, setState] = useState(setInitialState(SETTINGS));
 
+  // optimized getData
   const getData = (offset, limit) => {
     const data = [];
     const start = Math.max(SETTINGS.minIndex, offset);
     const end = Math.min(offset + limit - 1, SETTINGS.maxIndex);
+
+    if (getRequestCallOptimizationMap.has(`${start}${end}`)) {
+      return getRequestCallOptimizationMap.get(`${start}${end}`);
+    }
+
     if (start <= end) {
       for (let i = start; i <= end; i++) {
         data.push({ index: i, text: `item ${i}`, height: SETTINGS.itemHeight });
       }
     }
+    let startEndString = `${start}${end}`;
+    getRequestCallOptimizationMap.set(startEndString, data);
     return data;
   };
 

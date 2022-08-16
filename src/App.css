@@ -36,3 +36,24 @@
     transform: rotate(360deg);
   }
 }
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.pagination > .paginationCursor {
+  color: red;
+  font-weight: 800;
+}
+
+.pagination > .nextBtn,
+.previousBtn {
+  color: blue;
+  font-weight: 700;
+  border: 1px solid blue;
+  padding: 4px;
+  border-radius: 2px;
+}

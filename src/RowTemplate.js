@@ -5,7 +5,7 @@ const RowTemplate = ({ item, selectedItems, setSelecteditems }) => {
 
   return (
     <div
-      className={`item${item.index}`}
+      className={`item${item.index} li_item ${item.index}`}
       id={`item${item.index}`}
       key={item.index}
       style={{
@@ -17,10 +17,6 @@ const RowTemplate = ({ item, selectedItems, setSelecteditems }) => {
         borderBottom: "1px solid red",
       }}
       onClick={() => {
-        // let selectedItemsArray = [...selectedItems];
-        // selectedItemsArray.push(`item${item.index}`);
-        // setSelecteditems([...selectedItemsArray]);
-
         let newSelectedArray = [];
         newSelectedArray.push(`item${item.index}`);
         setSelecteditems([...newSelectedArray]);
