@@ -49,11 +49,11 @@ function App() {
 
   const SETTINGS = {
     minIndex: 1,
-    maxIndex: 50,
+    maxIndex: 100,
     startIndex: 1,
-    itemHeight: 100,
-    amount: 8,
-    tolerance: 6,
+    itemHeight: 90,
+    amount: 10,
+    tolerance: 7,
   };
 
   const [state, setState] = useState(setInitialState(SETTINGS));

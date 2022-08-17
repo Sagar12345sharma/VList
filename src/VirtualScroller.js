@@ -29,6 +29,7 @@ function VirtualScroller({ settings, get, row, InitialState }) {
 
     const index =
       minIndex + Math.floor((scrollTop - toleranceHeight) / itemHeight);
+
     const data = get(index, bufferedItems);
     const topPaddingHeight = Math.max((index - minIndex) * itemHeight, 0);
     const bottomPaddingHeight = Math.max(
@@ -52,10 +53,8 @@ function VirtualScroller({ settings, get, row, InitialState }) {
     if (e.timeStamp !== undefined) {
       let { scrollTop } = e.target;
       if (scrollTop > scrollerHeight) {
-        // updatePaginationScrollDown();
         helperFunctionForPaginationScrollLastElement("down");
       } else {
-        // updatePaginationScrollUp();
         helperFunctionForPaginationScrollLastElement("up");
       }
 
@@ -64,76 +63,40 @@ function VirtualScroller({ settings, get, row, InitialState }) {
   };
 
   const helperFunctionForPaginationScrollLastElement = (mode) => {
-    const { amount, tolerance } = settings;
-    let newPaginationCursor = paginationCursor;
-    let viewPortDocuments = document.getElementsByClassName("li_item");
-    let lastViewPortDocument =
-      viewPortDocuments[viewPortDocuments.length - 1].getAttribute("class");
-    const arrayOfClasses = lastViewPortDocument.split(" ");
-    const lastIndexOfListItem = +arrayOfClasses[arrayOfClasses.length - 1];
-    if (mode === "up") {
-      newPaginationCursor = paginationCursor - 1;
-      const scrollDownLimitDecider = newPaginationCursor * amount + tolerance;
-      if (lastIndexOfListItem === scrollDownLimitDecider) {
-        setPaginationCursor(paginationCursor - 1);
+    setTimeout(() => {
+      // settimeout isiliye lagaaya h kyuki dom fast update hone ki vajah se last viewport item previous vaala mil rha hn
+      const { amount, tolerance } = settings;
+      let newPaginationCursor = paginationCursor;
+      let viewPortDocuments = document.getElementsByClassName("li_item");
+      let lastViewPortDocument =
+        viewPortDocuments[viewPortDocuments.length - 1].getAttribute("class");
+      const arrayOfClasses = lastViewPortDocument.split(" ");
+      const lastIndexOfListItem = +arrayOfClasses[arrayOfClasses.length - 1];
+      if (mode === "up") {
+        newPaginationCursor = paginationCursor - 1;
+        const scrollDownLimitDecider = newPaginationCursor * amount + tolerance;
+
+        if (lastIndexOfListItem <= scrollDownLimitDecider) {
+          setPaginationCursor(paginationCursor - 1);
+        }
+      } else {
+        const scrollDownLimitDecider = newPaginationCursor * amount + tolerance;
+        if (lastIndexOfListItem >= scrollDownLimitDecider) {
+          setPaginationCursor(paginationCursor + 1);
+        }
       }
-    } else {
-      const scrollDownLimitDecider = newPaginationCursor * amount + tolerance;
-      if (lastIndexOfListItem === scrollDownLimitDecider) {
-        setPaginationCursor(paginationCursor + 1);
-      }
-    }
+    }, 0);
   };
 
-  // const updatePaginationScrollDown = () => {
-  //   const { amount, tolerance } = settings;
-  //   const scrollDownLimitDecider = paginationCursor * amount + tolerance;
-  //   let viewPortDocuments = document.getElementsByClassName("li_item");
-  //   let lastViewPortDocument =
-  //     viewPortDocuments[viewPortDocuments.length - 1].getAttribute("class");
+  const paginationNextPreviousBtnHandler = (action) => {
+    setSelecteditems([]); // set the selected item to its initial state...
 
-  //   const arrayOfClasses = lastViewPortDocument.split(" ");
-  //   const lastIndexOfListItem = +arrayOfClasses[arrayOfClasses.length - 1];
-
-  //   if (lastIndexOfListItem > scrollDownLimitDecider) {
-  //     setPaginationCursor(paginationCursor + 1);
-  //   }
-  // };
-
-  // const updatePaginationScrollUp = () => {
-  //   const { amount, tolerance } = settings;
-  //   const newPaginationCursor = paginationCursor - 1;
-  //   const scrollDownLimitDecider = newPaginationCursor * amount + tolerance;
-  //   let viewPortDocuments = document.getElementsByClassName("li_item");
-  //   let lastViewPortDocument =
-  //     viewPortDocuments[viewPortDocuments.length - 1].getAttribute("class");
-
-  //   const arrayOfClasses = lastViewPortDocument.split(" ");
-  //   const lastIndexOfListItem = +arrayOfClasses[arrayOfClasses.length - 1];
-
-  //   if (lastIndexOfListItem === scrollDownLimitDecider) {
-  //     setPaginationCursor(paginationCursor - 1);
-  //   }
-  // };
-
-  const paginationHandler = (action) => {
-    let toScrollHeight = state.totalHeight / state.SETTINGS.amount;
-
+    // let toScrollHeight = state.totalHeight / state.SETTINGS.amount;
     let element = document.querySelector(".viewport");
     if (action === "up") {
-      // element.scrollBy(0, toScrollHeight);
-      // element.scroll({
-      //   top: toScrollHeight,
-      //   // left: 100,
-      //   behavior: "smooth",
-      // });
+      element.scrollBy(0, -state.viewportHeight);
     } else {
-      // element.scrollBy(0, toScrollHeight);
-      // element.scroll({
-      //   bottom: toScrollHeight,
-      //   // left: 100,
-      //   behavior: "smooth",
-      // });
+      element.scrollBy(0, state.viewportHeight);
     }
   };
 
@@ -160,18 +123,18 @@ function VirtualScroller({ settings, get, row, InitialState }) {
             ></RowTemplate>
           );
         })}
-        <div
+        {/* <div
           style={{
             height: `${state.bottomPaddingHeight}px`,
             background: "blue",
           }}
-        ></div>
+        ></div> */}
       </div>
       <div className="pagination">
         <div
           className="previousBtn"
           onClick={() => {
-            paginationHandler("up");
+            paginationNextPreviousBtnHandler("up");
           }}
         >
           Previous
@@ -180,7 +143,7 @@ function VirtualScroller({ settings, get, row, InitialState }) {
         <div
           className="nextBtn"
           onClick={() => {
-            paginationHandler("down");
+            paginationNextPreviousBtnHandler("down");
           }}
         >
           Next
