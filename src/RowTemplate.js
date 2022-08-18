@@ -14,7 +14,7 @@ const RowTemplate = ({ item, selectedItems, setSelecteditems }) => {
             ? `${item.height * 2 + 2}px`
             : `${item.height}px`
         }`,
-        borderBottom: "1px solid red",
+        borderBottom: "1px solid #c8c5c59c",
       }}
       onClick={() => {
         let newSelectedArray = [];
@@ -22,7 +22,9 @@ const RowTemplate = ({ item, selectedItems, setSelecteditems }) => {
         setSelecteditems([...newSelectedArray]);
       }}
     >
-      {item.text}
+      <div className="itemIndex">{item.index}</div>
+      <div className="itemIndex">{item.text}</div>
+      <div className="itemIndex">{item.height}</div>
     </div>
   );
 };

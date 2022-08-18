@@ -1,11 +1,39 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo, useCallback } from "react";
 import "./App.css";
 import VirtualScroller from "./VirtualScroller";
 
 function App() {
-  const [incrementer, setIncrementer] = useState(1);
+  const [
+    mapContainsPageNumberAsKeyAndStartIndexEndIndexAsValue,
+    setMapContainsPageNumberAsKeyAndStartIndexEndIndexAsValue,
+  ] = useState(new Map()); // this map contains the page number as key and the start index and end index as value like:-
+  /**
+   *
+   * [
+        {
+            "key": 1,
+            "value": "1-17"
+        }
+    ]
+   */
+
+  const [
+    mapContainsLastIndexAsKeyPageNumberAsValue,
+    setMapContainsLastIndexAsKeyPageNumberAsValue,
+  ] = useState(new Map()); // this map contains the last index as key and page number as value... like
+  /**
+ * [
+        {
+            "key": 17,
+            "value": 1
+        }
+    ]
+ */
+
+  const [paginationStorage, setPaginationStorage] = useState(new Map());
 
   const getRequestCallOptimizationMap = new Map();
+
   const setInitialState = ({
     minIndex,
     maxIndex,
@@ -59,6 +87,9 @@ function App() {
   const [state, setState] = useState(setInitialState(SETTINGS));
 
   // optimized getData
+  const memoIzedGetDataFuntion = useCallback((offset, limit) => {
+    return getData(offset, limit);
+  }, []);
   const getData = (offset, limit) => {
     const data = [];
     const start = Math.max(SETTINGS.minIndex, offset);
@@ -81,13 +112,58 @@ function App() {
   useEffect(() => {
     let initialState = setInitialState(SETTINGS);
     setState(initialState);
+    paginationHandler();
   }, []);
+
+  const paginationHandler = () => {
+    const minIndex = SETTINGS.minIndex;
+    const maxIndex = SETTINGS.maxIndex;
+    let pagination = 1;
+    const mapContainsPageNumberAsKeyAndStartIndexEndIndexAsValue = new Map();
+
+    const mapContainsLastIndexAsKeyPageNumberAsValue = new Map();
+
+    let firstIndex = minIndex;
+    let lastIndex = pagination * SETTINGS.amount + SETTINGS.tolerance;
+
+    while (lastIndex < maxIndex) {
+      mapContainsPageNumberAsKeyAndStartIndexEndIndexAsValue.set(
+        pagination,
+        `${firstIndex}-${lastIndex}`
+      );
+
+      mapContainsLastIndexAsKeyPageNumberAsValue.set(lastIndex, pagination);
+
+      firstIndex += SETTINGS.amount;
+      lastIndex += SETTINGS.amount;
+      pagination += 1;
+      setMapContainsPageNumberAsKeyAndStartIndexEndIndexAsValue(
+        mapContainsPageNumberAsKeyAndStartIndexEndIndexAsValue
+      );
+
+      setMapContainsLastIndexAsKeyPageNumberAsValue(
+        mapContainsLastIndexAsKeyPageNumberAsValue
+      );
+    }
+  };
 
   return (
     <div className="App">
-      <VirtualScroller settings={SETTINGS} get={getData} InitialState={state} />
+      <VirtualScroller
+        settings={SETTINGS}
+        get={memoIzedGetDataFuntion}
+        InitialState={state}
+        mapContainsPageNumberAsKeyAndStartIndexEndIndexAsValue={
+          mapContainsPageNumberAsKeyAndStartIndexEndIndexAsValue
+        }
+        mapContainsLastIndexAsKeyPageNumberAsValue={
+          mapContainsLastIndexAsKeyPageNumberAsValue
+        }
+        setPaginationStorage={setPaginationStorage}
+        paginationStorage={paginationStorage}
+      />
     </div>
   );
 }
 
-export default App;
+export default memo(App);

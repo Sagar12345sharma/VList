@@ -51,9 +51,19 @@
 
 .pagination > .nextBtn,
 .previousBtn {
-  color: blue;
+  color: #a8a7a79c;
   font-weight: 700;
-  border: 1px solid blue;
+  border: 1px solid #6666669c;
   padding: 4px;
   border-radius: 2px;
+}
+
+.li_item {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.itemIndex {
+  color: #444444;
 }

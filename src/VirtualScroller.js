@@ -1,7 +1,20 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, memo } from "react";
 import RowTemplate from "./RowTemplate";
 
-function VirtualScroller({ settings, get, row, InitialState }) {
+function VirtualScroller({
+  settings,
+  get,
+  row,
+  InitialState,
+  mapContainsPageNumberAsKeyAndStartIndexEndIndexAsValue,
+  mapContainsLastIndexAsKeyPageNumberAsValue,
+  setPaginationStorage,
+  paginationStorage,
+}) {
+  console.log({
+    mapContainsPageNumberAsKeyAndStartIndexEndIndexAsValue,
+    mapContainsLastIndexAsKeyPageNumberAsValue,
+  });
   const [state, setState] = useState({ ...InitialState });
   const [selectedItems, setSelecteditems] = useState([]);
   const viewportElement = useRef(null);
@@ -100,6 +113,19 @@ function VirtualScroller({ settings, get, row, InitialState }) {
     }
   };
 
+  // debouncing
+  function debounce(func, timeout = 50) {
+    let timer;
+    return (...args) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        func.apply(this, args);
+      }, timeout);
+    };
+  }
+
+  const processChange = debounce((e) => runScroller(e));
+
   return (
     <>
       <div
@@ -107,11 +133,14 @@ function VirtualScroller({ settings, get, row, InitialState }) {
         style={{ height: `${state.viewportHeight}px`, overflowY: "auto" }}
         ref={viewportElement}
         onScroll={(e) => {
-          runScroller(e);
+          processChange(e);
         }}
       >
         <div
-          style={{ height: `${state.topPaddingHeight}px`, background: "red" }}
+          style={{
+            height: `${state.topPaddingHeight}px`,
+            background: "#c8c5c59c",
+          }}
         ></div>
 
         {state.data.map((item) => {
@@ -123,12 +152,6 @@ function VirtualScroller({ settings, get, row, InitialState }) {
             ></RowTemplate>
           );
         })}
-        {/* <div
-          style={{
-            height: `${state.bottomPaddingHeight}px`,
-            background: "blue",
-          }}
-        ></div> */}
       </div>
       <div className="pagination">
         <div
@@ -153,4 +176,4 @@ function VirtualScroller({ settings, get, row, InitialState }) {
   );
 }
 
-export default VirtualScroller;
+export default memo(VirtualScroller);
