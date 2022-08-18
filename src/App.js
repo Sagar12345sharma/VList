@@ -34,6 +34,8 @@ function App() {
 
   const getRequestCallOptimizationMap = new Map();
 
+  const [numberOfSteps, setNumberOfSteps] = useState(0);
+
   const setInitialState = ({
     minIndex,
     maxIndex,
@@ -81,7 +83,7 @@ function App() {
     startIndex: 1,
     itemHeight: 90,
     amount: 10,
-    tolerance: 7,
+    tolerance: 8,
   };
 
   const [state, setState] = useState(setInitialState(SETTINGS));
@@ -90,6 +92,7 @@ function App() {
   const memoIzedGetDataFuntion = useCallback((offset, limit) => {
     return getData(offset, limit);
   }, []);
+
   const getData = (offset, limit) => {
     const data = [];
     const start = Math.max(SETTINGS.minIndex, offset);
@@ -104,6 +107,7 @@ function App() {
         data.push({ index: i, text: `item ${i}`, height: SETTINGS.itemHeight });
       }
     }
+
     let startEndString = `${start}${end}`;
     getRequestCallOptimizationMap.set(startEndString, data);
     return data;
@@ -113,6 +117,7 @@ function App() {
     let initialState = setInitialState(SETTINGS);
     setState(initialState);
     paginationHandler();
+    setNumberOfSteps(SETTINGS.maxIndex / SETTINGS.amount);
   }, []);
 
   const paginationHandler = () => {
@@ -134,8 +139,8 @@ function App() {
 
       mapContainsLastIndexAsKeyPageNumberAsValue.set(lastIndex, pagination);
 
-      firstIndex += SETTINGS.amount;
       lastIndex += SETTINGS.amount;
+      firstIndex = lastIndex - SETTINGS.amount - 2 * SETTINGS.tolerance + 1;
       pagination += 1;
       setMapContainsPageNumberAsKeyAndStartIndexEndIndexAsValue(
         mapContainsPageNumberAsKeyAndStartIndexEndIndexAsValue
@@ -145,6 +150,13 @@ function App() {
         mapContainsLastIndexAsKeyPageNumberAsValue
       );
     }
+
+    mapContainsPageNumberAsKeyAndStartIndexEndIndexAsValue.set(
+      pagination,
+      `${firstIndex}-${lastIndex}`
+    );
+
+    mapContainsLastIndexAsKeyPageNumberAsValue.set(lastIndex, pagination);
   };
 
   return (
@@ -161,6 +173,8 @@ function App() {
         }
         setPaginationStorage={setPaginationStorage}
         paginationStorage={paginationStorage}
+        setNumberOfSteps={setNumberOfSteps}
+        numberOfSteps={numberOfSteps}
       />
     </div>
   );
